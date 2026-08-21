@@ -35,13 +35,16 @@ reported sign are unaffected. See spec provenance entry 36.
 | Table 4 analytic games | `e13_synthetic_ground_truth.json` | any | n/a | n/a |
 | Table 5 interactions | `interaction_seed_ci_ml_1m.json` | x86 | legacy | 42-51 |
 | Table 6 LOO vs Shapley | `final_seed_ci.json` | M4 | **sym** | 42-51 (all columns) |
-| Table 7 retirement | `e12_retirement_ml_1m.json` | M4 | legacy | 42 |
+| Table 7 retirement, loss/recall/LOO columns | `e12_retirement_ml_1m.json` | M4 | sym | 42 |
+| Table 7 retirement, Shapley column | `e11_estimands_ml_1m.json` `refit_head.shapley` | M4 | sym | 42 |
 | Table 8 retirement seeds | `final_retirement_seeds.json` | M4 | **sym** | 42-51 |
 | Paired delta tau (Sec 13) | `final_retirement_seeds.json` `paired_delta_tau` | M4 | **sym** | 42-51 |
 | Figure 2 | `final_seed_ci.json` | M4 | **sym** | 42-51 |
 | LOO/gap intervals, all corpora | `final_seed_ci.json` `loo_ci`/`gap_ci` | M4 | **sym** | 42-51 |
 | Figure 3 | `results_*.json` | M4 | legacy | 42 |
 | Semivalues (Sec 10.2) | `e10_values_ml_1m.json` | x86 | legacy | 42 |
+| Semivalues, Gowalla | `e10_values_gowalla_ts.json` | M4 | **sym** | 42 |
+| Semivalues, Amazon-VG | `e10_values_amazon_video_games.json` | M4 | legacy | 42 |
 | Candidate-rule ablation (Sec 4.1) | `candidate_rule_ablation_ml_1m.json` | x86 | both | 42 |
 | Grand-pool ablation (Sec 4.1) | `results_ml_1m.json` `e8_appendix_b` | M4 | legacy | 42 |
 | Gowalla subsampling (Sec 11) | `gowalla_subsample_sensitivity.json` | M4 | sym vs sym | 42-51 |
@@ -52,6 +55,14 @@ reported sign are unaffected. See spec provenance entry 36.
 | Table 7 single-seed retirement | `e12_retirement_ml_1m.json` | M4 | **sym** | 42, raw utility |
 | Validation recall, Table 1 | `protocol_sensitivity.json` | M4 | sym | 42 |
 | LOO/gap intervals, ml_1m only (superseded) | `final_loo_gap_ci.json` | x86 | legacy | 42-51 |
+
+**Table 7 draws one row from two runs, deliberately.** The Shapley column
+reproduces the refitted-head row of the estimand table so the two tables
+agree; the remaining columns come from the retirement run. The two runs
+rebuild candidates independently, so their grand-coalition values differ in
+the fifth decimal (0.05136 against 0.05169) and `ct` changes sign at the
+1e-5 scale. Kendall tau against the observed loss is +0.20 under either
+column, so no reported conclusion depends on the choice.
 
 ## Status after commit 600fd98
 
@@ -92,9 +103,9 @@ from the previous legacy-key run by 2.7e-4, the scale of the rule change.
 
 To regenerate all of these under the symmetric key:
 
-    python scripts/run_study.py --datasets ml_1m --budget-gb 24
-    python scripts/run_study.py --datasets amazon_video_games --budget-gb 24
-    python scripts/run_study.py --datasets gowalla_ts --budget-gb 24
+    python experiments/run_study.py --datasets ml_1m --budget-gb 24
+    python experiments/run_study.py --datasets amazon_video_games --budget-gb 24
+    python experiments/run_study.py --datasets gowalla_ts --budget-gb 24
 
 That rewrites `results_*.json` and every e-block it contains. Expect Table 1's
 monotonicity integers to move by a count or two; the recall column and every
